@@ -43,5 +43,9 @@
     "**/*.spec.ts",
     "**/*.spec.tsx"
   ],
-  "references": []
+  "references": [
+    {
+      "path": "./packages/chat-form"
+    }
+  ]
 }
