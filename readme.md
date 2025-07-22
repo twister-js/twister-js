@@ -31,7 +31,7 @@ cd examples/chat-form
 npm run dev
 ```
 
-Open http://localhost:3000 to see the chat-form component in action!
+Open http://localhost:5173 to see the chat-form component in action!
 
 #### 3. Use in Your Project
 
@@ -40,14 +40,53 @@ npm install @twister-js/chat-form
 ```
 
 ```tsx
-import { ChatForm } from '@twister-js/chat-form';
+import { useChatForm } from '@twister-js/chat-form';
 
 function MyApp() {
-  const handleSendMessage = (message: string) => {
-    console.log('New message:', message);
-  };
+  const chat = useChatForm({
+    template: [
+      {
+        output: {
+          text: "Hello! What's your name?",
+        },
+      },
+      {
+        input: {
+          type: 'text',
+          name: 'name',
+        },
+      },
+      {
+        output: {
+          text: ctx => `Nice to meet you, ${ctx.getFirstFromName('name')}!`,
+        },
+      },
+    ],
+  });
 
-  return <ChatForm onSendMessage={handleSendMessage} />;
+  return (
+    <div>
+      <div>
+        {chat.messages.map((msg, i) => (
+          <div key={i} className={`message ${msg.sender}`}>
+            <strong>{msg.sender}:</strong> {msg.text}
+          </div>
+        ))}
+      </div>
+      <input
+        type='text'
+        disabled={chat.inputDisabled}
+        onKeyUp={e => {
+          if (e.key === 'Enter') {
+            const target = e.target as HTMLInputElement;
+            chat.send(target.value);
+            target.value = '';
+          }
+        }}
+        placeholder='Type your message...'
+      />
+    </div>
+  );
 }
 ```
 
@@ -58,7 +97,7 @@ function MyApp() {
 
 ## Available Packages
 
-- **@twister-js/chat-form** - React chat form component with TypeScript support
+- **@twister-js/chat-form** - A flexible and customizable React chat form hook with TypeScript support. Create interactive chat-based forms with validation, conditional logic, and dynamic content.
 
 ## Project Structure
 
@@ -81,16 +120,13 @@ twister-js/
 ├── packages/                      # All packages in the monorepo
 │   └── chat-form/                 # @twister-js/chat-form package
 │       ├── src/
-│       │   ├── __tests__/
-│       │   │   └── ChatForm.test.tsx
-│       │   ├── ChatForm.tsx       # Main component
+│       │   ├── hooks/
+│       │   │   └── chat-form.ts   # Main useChatForm hook
 │       │   ├── index.ts           # Package exports
-│       │   ├── setupTests.ts      # Test setup
 │       │   └── types.ts           # TypeScript interfaces
-│       ├── .eslintrc.js
-│       ├── jest.config.js
+│       ├── eslint.config.mjs
 │       ├── package.json
-│       ├── README.md
+│       ├── readme.md
 │       ├── rollup.config.js
 │       └── tsconfig.json
 ├── .gitignore
@@ -107,7 +143,6 @@ twister-js/
 - **Turborepo**: For build optimization and task orchestration
 - **TypeScript**: Full TypeScript support across all packages
 - **Rollup**: For building and bundling packages
-- **Jest**: For testing
 - **ESLint**: For code linting
 - **Prettier**: For code formatting
 - **Changesets**: For version management and publishing
@@ -121,7 +156,6 @@ packages/[package-name]/
 ├── src/
 │   ├── index.ts
 │   └── ...
-├── tests/
 ├── package.json
 ├── tsconfig.json
 ├── README.md
@@ -147,7 +181,6 @@ npm install
 ```bash
 npm run build        # Build all packages
 npm run dev          # Development mode for all packages
-npm run test         # Run tests across all packages
 npm run lint         # Lint all packages
 npm run type-check   # Type check all packages
 npm run format       # Format code with Prettier
@@ -157,7 +190,7 @@ npm run format       # Format code with Prettier
 
 ```bash
 cd examples/chat-form
-npm run dev          # Starts on http://localhost:3000
+npm run dev          # Starts on http://localhost:5173
 ```
 
 ## Package Development Workflow
@@ -237,7 +270,6 @@ From the root directory:
 
 - `npm run build` - Build all packages
 - `npm run dev` - Start development mode for all packages
-- `npm run test` - Run tests across all packages
 - `npm run lint` - Lint all packages
 - `npm run type-check` - Type check all packages
 - `npm run format` - Format code with Prettier
